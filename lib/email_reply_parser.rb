@@ -77,7 +77,7 @@ class EmailReplyParser
     # Returns this same Email instance.
     def read(text)
       # in 1.9 we want to operate on the raw bytes
-      text = text.dup.force_encoding('binary') if text.respond_to?(:force_encoding)
+      text = text.dup.force_encoding('utf-8') if text.respond_to?(:force_encoding)
 
       # Normalize line endings.
       text.gsub!("\r\n", "\n")
@@ -152,11 +152,11 @@ class EmailReplyParser
     # Returns nothing.
     def scan_line(line)
       line.chomp!("\n")
-      line.lstrip! unless SIG_REGEX.match(line) 
+      line.lstrip! unless SIG_REGEX.match(line)
 
       # We're looking for leading `>`'s to see if this line is part of a
       # quoted Fragment.
-      is_quoted = !!(line =~ /(>+)$/n)
+      is_quoted = !!(line =~ /(>+).*$/n)
 
       # Mark the current Fragment as a signature if the current line is empty
       # and the Fragment starts with a common signature indicator.
@@ -189,7 +189,7 @@ class EmailReplyParser
     #
     # Returns true if the line is a valid header, or false.
     def quote_header?(line)
-      line =~ /^:etorw.*nO$/n
+      !!(line =~ /^:etorw.*nO$/n) || !!(line =~ /^:ジーセッメの >.*<.*$/u) || !!(line =~ /^：ルーメの >.*<.*$/u)
     end
 
     # Builds the fragment string and reverses it, after all lines have been
